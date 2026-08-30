@@ -8,3 +8,5 @@ EXTENSIONES_VALIDAS = {
     ".png",
     ".webp",
 }
+
+NUMERO_IMAGENES_INICIALES = 3

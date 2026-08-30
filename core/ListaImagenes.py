@@ -13,7 +13,6 @@ def cargarImagenes(carpetas):
     return imagenesPool
 
 def elegirImagenes(numImagenes,imagenesPool):
-    imagenesAMostrar = []
     if numImagenes <= 0 or numImagenes > MAXIMO_IMAGENES_ALEATORIAS:
         raise ValueError(
             f" El numero de imagenes debe estar entre 1 y "

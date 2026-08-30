@@ -1,13 +1,11 @@
 import sys
-
-from PySide6.QtWidgets import QApplication, QMainWindow
-
+from PySide6.QtWidgets import QApplication
+from ui.VentanaPrincipal import VentanaPrincipal
 
 app = QApplication(sys.argv)
 
-window = QMainWindow()
-window.setWindowTitle("Image Randomizer")
-window.resize(1000, 700)
-window.show()
+ventana = VentanaPrincipal()
+ventana.resize(1000, 700)
+ventana.show()
 
 sys.exit(app.exec())
