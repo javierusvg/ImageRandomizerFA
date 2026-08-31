@@ -12,14 +12,20 @@ def cargarImagenes(carpetas):
                         imagenesPool.append(imagen)
     return imagenesPool
 
-def elegirImagenes(numImagenes,imagenesPool):
+def elegirImagenes(numImagenes, imagenesPool, imagenesAnteriores=None):
+    if imagenesAnteriores is None:
+        imagenesAnteriores = []
+
     if numImagenes <= 0 or numImagenes > MAXIMO_IMAGENES_ALEATORIAS:
         raise ValueError(
             f" El numero de imagenes debe estar entre 1 y "
             f"{MAXIMO_IMAGENES_ALEATORIAS}."
         )
 
-    if len(imagenesPool) < numImagenes:
-        raise ValueError("No hay suficientes imagenes cargadas en el pool.")
+    poolFiltrado = [imagen for imagen in imagenesPool if imagen not in imagenesAnteriores]
 
-    return random.sample(imagenesPool, numImagenes)
+    if len(poolFiltrado) < numImagenes:
+        raise ValueError("No hay suficientes imagenes distintas en el pool.")
+
+    return random.sample(poolFiltrado, numImagenes)
+

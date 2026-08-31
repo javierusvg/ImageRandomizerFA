@@ -13,6 +13,7 @@ class VentanaPrincipal(QWidget):
         self.imagenesElegidas = elegirImagenes(self.numeroImagenesSeleccionado, self.imagenesPool)
 
         self.colocador = ColocadorImagenes(self.imagenesElegidas)
+        self.colocador.solicitudNuevaImagen.connect(self.gestionarSolicitudNuevaImagen)#Conecta señal para randomizar una imagen
 
         #BOTOM SELECTOR NUMERO DE IMAGENES
         self.spinbox = QSpinBox()
@@ -39,4 +40,11 @@ class VentanaPrincipal(QWidget):
         self.numeroImagenesSeleccionado = valor
 
     def randomizarTodo(self):
-        pass
+        nuevasImagenesElegidas = elegirImagenes(self.numeroImagenesSeleccionado, self.imagenesPool, self.imagenesElegidas)
+        self.imagenesElegidas = nuevasImagenesElegidas
+        self.colocador.actualizarImagenes(self.imagenesElegidas)
+
+    def gestionarSolicitudNuevaImagen(self, tileOrigen, rutasVisibles):
+        resultado=elegirImagenes(1, self.imagenesPool, rutasVisibles)
+        nuevaImagen = resultado[0]
+        self.colocador.sustituirImagenEnTile(tileOrigen, nuevaImagen)

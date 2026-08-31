@@ -34,16 +34,19 @@ def agruparEnFilas(proporciones, anchoDisponible, alturaObjetivo, gap):
 
 def calcularRectangulos(filas, anchoDisponible, gap, alturaObjetivo):
     factorAlturaMaxima = 1.5
+    factorAlturaMinima = 0.8
     rectangulos = []
     yActual = 0
     altura_maxima = alturaObjetivo * factorAlturaMaxima
+    altura_minima = alturaObjetivo * factorAlturaMinima
+
 
     for fila in filas:
         n = len(fila)
         sumaProporciones = sum(fila)
 
         alturaReal = (anchoDisponible - gap * (n - 1)) / sumaProporciones
-        alturaReal = min(alturaReal, altura_maxima)
+        alturaReal = max(min(alturaReal, altura_maxima), altura_minima)
 
         anchoOcupado = sumaProporciones * alturaReal + gap * (n - 1)
         margenLateral = (anchoDisponible - anchoOcupado) / 2
@@ -60,15 +63,22 @@ def calcularRectangulos(filas, anchoDisponible, gap, alturaObjetivo):
     return rectangulos
 
 def ajustarAltoDisponible(proporciones, anchoDisponible, altoDisponible, alturaObjetivoInicial, gap):
-    alturaObjetivo = alturaObjetivoInicial
+    bajo = 50
+    alto = altoDisponible * 2
+    mejorResultado = None
 
-    while alturaObjetivo > 50:
-        rectangulos = calcularLayout(proporciones, anchoDisponible, alturaObjetivo, gap)
-        altoTotal = max(y + alto for (x, y, ancho, alto) in rectangulos)
+    for _ in range(30):
+        medio = (bajo + alto) / 2
+        rectangulos = calcularLayout(proporciones, anchoDisponible, medio, gap)
+        altoTotal = max(y + altoImagen for (x, y, ancho, altoImagen) in rectangulos)
 
-        if altoTotal > altoDisponible:
-            alturaObjetivo *= 0.9
+        if altoTotal <= altoDisponible:
+            mejorResultado = rectangulos
+            bajo = medio
         else:
-            return rectangulos
+            alto = medio
 
-    return rectangulos
+    altoTotalFinal = max(y + altoImagen for (x, y, ancho, altoImagen) in mejorResultado)
+    offsetY = (altoDisponible - altoTotalFinal) / 2
+
+    return [(x, y + offsetY, ancho, altoImagen) for (x, y, ancho, altoImagen) in mejorResultado]
