@@ -3,6 +3,7 @@ from pathlib import Path
 from config import MAXIMO_IMAGENES_ALEATORIAS, NUMERO_IMAGENES_INICIALES
 from core.ListaImagenes import *
 from ui.ColocadorImagenes import ColocadorImagenes
+from ui.ZoomImagen import ZoomImagen
 
 class VentanaPrincipal(QWidget):
     def __init__(self):
@@ -14,6 +15,9 @@ class VentanaPrincipal(QWidget):
 
         self.colocador = ColocadorImagenes(self.imagenesElegidas)
         self.colocador.solicitudNuevaImagen.connect(self.gestionarSolicitudNuevaImagen)#Conecta señal para randomizar una imagen
+        self.colocador.solicitudZoomImagen.connect(self.gestionarZoomImagen)  # Conecta señal para zoom una imagen
+
+        self.zoom = ZoomImagen(self)
 
         #BOTOM SELECTOR NUMERO DE IMAGENES
         self.spinbox = QSpinBox()
@@ -43,8 +47,16 @@ class VentanaPrincipal(QWidget):
         nuevasImagenesElegidas = elegirImagenes(self.numeroImagenesSeleccionado, self.imagenesPool, self.imagenesElegidas)
         self.imagenesElegidas = nuevasImagenesElegidas
         self.colocador.actualizarImagenes(self.imagenesElegidas)
+        self.zoom.hide()
 
     def gestionarSolicitudNuevaImagen(self, tileOrigen, rutasVisibles):
         resultado=elegirImagenes(1, self.imagenesPool, rutasVisibles)
         nuevaImagen = resultado[0]
         self.colocador.sustituirImagenEnTile(tileOrigen, nuevaImagen)
+
+    def gestionarZoomImagen(self, tileOrigen):
+        self.zoom.mostrarImagen(tileOrigen.ruta)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.zoom.actualizarSiVisible()

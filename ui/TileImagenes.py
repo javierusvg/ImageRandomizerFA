@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QLabel
 class TileImagenes(QLabel):
     #Señal para randomizar una sola imagen(la de este tile en concreto)
     randomizarSolicitado = Signal(object)
+    zoomSolicitado = Signal(object)
 
     def __init__(self, rutaImagen):
         super().__init__()
@@ -27,5 +28,6 @@ class TileImagenes(QLabel):
 
         # Pulsa boton izquierdo sobre imagen
         if event.button() == Qt.MouseButton.LeftButton:
-            print("Click izquierd")
+            self.zoomSolicitado.emit(self)
+
         super().mousePressEvent(event)
