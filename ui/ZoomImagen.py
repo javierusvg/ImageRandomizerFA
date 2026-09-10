@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap, QFont
-from PySide6.QtWidgets import QWidget, QLabel, QGraphicsBlurEffect
+from PySide6.QtWidgets import QWidget, QLabel
 from config import *
 
 class ZoomImagen(QWidget):
@@ -11,7 +11,6 @@ class ZoomImagen(QWidget):
         self.margen = MARGEN_ZOOM_IMG
         self.margenBoton = MARGEN_BOTON_CERRAR_ZOOM_IMG
         self.rutaActual = None
-        self._efectoBlur = None
 
         self.etiquetaImagen = QLabel(self)
         self.etiquetaImagen.setAlignment(Qt.AlignCenter)
@@ -55,7 +54,8 @@ class ZoomImagen(QWidget):
         )
         self.botonCerrar.show()
 
-        self._aplicarBlurFondo()
+        #El blur ahora vive en VentanaPrincipal (compartido con el aviso del temporizador)
+        self.parent().aplicarBlurFondo()
 
         self.show()
         self.raise_()
@@ -64,20 +64,9 @@ class ZoomImagen(QWidget):
         if self.isVisible() and self.rutaActual is not None:
             self.mostrarImagen(self.rutaActual)
 
-    def _aplicarBlurFondo(self):
-        efecto = QGraphicsBlurEffect(self.parent())
-        efecto.setBlurRadius(12)
-        self.parent().colocador.setGraphicsEffect(efecto)
-        self._efectoBlur = efecto
-
-    def _quitarBlurFondo(self):
-        if self._efectoBlur is not None:
-            self.parent().colocador.setGraphicsEffect(None)
-            self._efectoBlur = None
-
     def hide(self):
         super().hide()
-        self._quitarBlurFondo()
+        self.parent().quitarBlurFondo()
 
     def mousePressEvent(self, event):
         if self.botonCerrar.geometry().contains(event.pos()):
