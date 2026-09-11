@@ -1,16 +1,16 @@
-import math
 from PySide6.QtCore import Signal, Qt, QRectF
-from PySide6.QtGui import QPainter, QColor, QPen, QPainterPath, QTransform
+from PySide6.QtGui import QPainter, QColor, QPen, QPainterPath, QFont, QFontMetrics
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout
 
 _COLOR_ICONO = QColor("#dcdcdc")
 
 #--- ESTILO PROPIO DEL WIDGET ---
-#El fondo/hover se sigue gestionando por QSS (coherente con QMenuBar::item),
-#el dibujo del icono en si se hace a mano con QPainter en IconoTemporizador,
-#para no depender de glifos Unicode (que en algunos sistemas se renderizan
-#como emoji en color en vez de como icono plano).
 ESTILO_TEMPORIZADOR = """
+QWidget#temporizadorContenedor {
+    background-color: #1e1e1e;
+    border-radius: 6px;
+}
+
 QPushButton#botonTemporizador {
     background: transparent;
     border: none;
@@ -27,9 +27,8 @@ QPushButton#botonTemporizador:pressed {
 
 QLabel#etiquetaTiempoRestante {
     color: #dcdcdc;
-    font-size: 16px;
-    font-weight: 550;
-    padding: 0px 4px;
+    font-weight: 600;
+    padding: 0px 2px;
 }
 """
 
@@ -87,7 +86,7 @@ class IconoTemporizador(QPushButton):
         painter.drawRect(QRectF(cx + separacion, cy - radio, anchoBarra, alto))
 
     def _dibujarReiniciar(self, painter, cx, cy, radio):
-        pluma = QPen(_COLOR_ICONO, 2)
+        pluma = QPen(_COLOR_ICONO, 2.4)
         pluma.setCapStyle(Qt.RoundCap)
         painter.setPen(pluma)
         painter.setBrush(Qt.NoBrush)
@@ -101,7 +100,6 @@ class IconoTemporizador(QPushButton):
         trayecto.arcTo(rectoArco, anguloInicio, anguloBarrido)
         painter.strokePath(trayecto, pluma)
 
-        #Punta de flecha orientada tangente al final del arco
         puntoFinal = trayecto.currentPosition()
         anguloTangente = trayecto.angleAtPercent(1.0)
 
@@ -112,7 +110,7 @@ class IconoTemporizador(QPushButton):
         painter.setPen(Qt.NoPen)
         painter.setBrush(_COLOR_ICONO)
         puntaFlecha = QPainterPath()
-        tam = radio * 0.5
+        tam = radio * 0.55
         puntaFlecha.moveTo(0, -tam * 0.7)
         puntaFlecha.lineTo(tam, 0)
         puntaFlecha.lineTo(0, tam * 0.7)
@@ -124,11 +122,15 @@ class IconoTemporizador(QPushButton):
 class TemporizadorWidget(QWidget):
     """
     Bloque visual del temporizador para la banda derecha del menu bar:
-    [Reiniciar] [Play/Pausa] [Tiempo restante]
+    [Reiniciar] [Play/Pausa] [Tiempo restante], agrupados dentro de un
+    unico contenedor con fondo propio.
 
-    No contiene ninguna logica de cuenta atras (eso vive en core/Temporizador.py).
-    Solo emite señales cuando el usuario pulsa un boton, y expone metodos
-    para que VentanaPrincipal actualice lo que se ve (texto e icono).
+    El contenedor se fija para ocupar TODA la altura de barraSuperior
+    (antes quedaba mas pequeño que la barra, con hueco arriba y abajo).
+    El tamaño de fuente del tiempo se deriva de alturaBoton, un poco mas
+    alto en proporcion que los iconos, para que los digitos destaquen
+    dentro del propio bloque sin tener que tocar la barra ni la fuente
+    a mano cada vez.
     """
 
     reiniciarSolicitado = Signal()
@@ -136,7 +138,19 @@ class TemporizadorWidget(QWidget):
 
     def __init__(self, parent=None, alturaBoton=22):
         super().__init__(parent)
-        self.setStyleSheet(ESTILO_TEMPORIZADOR)
+
+        margenVertical = 2
+        alturaContenedor = alturaBoton + margenVertical * 2
+
+        #El widget entero (no solo el contenedor interno) fija su altura,
+        #para que layoutBarraSuperior lo estire verticalmente hasta llenar
+        #toda la barra en vez de quedarse centrado y mas pequeño que ella.
+        self.setFixedHeight(alturaContenedor)
+
+        contenedor = QWidget(self)
+        contenedor.setObjectName("temporizadorContenedor")
+        contenedor.setStyleSheet(ESTILO_TEMPORIZADOR)
+        contenedor.setFixedHeight(alturaContenedor)
 
         self.botonReiniciar = IconoTemporizador("reiniciar", alturaBoton)
         self.botonReiniciar.setToolTip("Reiniciar tiempo")
@@ -146,15 +160,31 @@ class TemporizadorWidget(QWidget):
         self.botonPlayPausa.setToolTip("Play / Pausa")
         self.botonPlayPausa.clicked.connect(self.playPausaSolicitado.emit)
 
+        #Fuente monoespaciada + ancho fijo: evita que el bloque "tiemble" de anchura.
+        #alturaBoton - 2 (en vez de -4): el numero queda relativamente MAS alto
+        #que los iconos, no solo igual de grande que antes.
+        tamañoFuente = max(alturaBoton , 10)
+        fuenteTiempo = QFont("Consolas")
+        fuenteTiempo.setStyleHint(QFont.Monospace)
+        fuenteTiempo.setPixelSize(tamañoFuente)
+
         self.etiquetaTiempo = QLabel("00:00")
         self.etiquetaTiempo.setObjectName("etiquetaTiempoRestante")
+        self.etiquetaTiempo.setFont(fuenteTiempo)
+        self.etiquetaTiempo.setAlignment(Qt.AlignCenter)
+        anchoTexto = QFontMetrics(fuenteTiempo).horizontalAdvance("00:00")
+        self.etiquetaTiempo.setFixedWidth(anchoTexto + 10)
+
+        layoutContenedor = QHBoxLayout(contenedor)
+        layoutContenedor.setContentsMargins(6, margenVertical, 10, margenVertical)
+        layoutContenedor.setSpacing(4)
+        layoutContenedor.addWidget(self.botonReiniciar, 0, Qt.AlignVCenter)
+        layoutContenedor.addWidget(self.botonPlayPausa, 0, Qt.AlignVCenter)
+        layoutContenedor.addWidget(self.etiquetaTiempo, 0, Qt.AlignVCenter)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(4)
-        layout.addWidget(self.botonReiniciar)
-        layout.addWidget(self.botonPlayPausa)
-        layout.addWidget(self.etiquetaTiempo)
+        layout.addWidget(contenedor)
 
     def actualizarTiempo(self, texto):
         self.etiquetaTiempo.setText(texto)

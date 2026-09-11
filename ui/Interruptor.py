@@ -1,11 +1,18 @@
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, Property, QSize
 from PySide6.QtGui import QPainter, QColor
 from PySide6.QtWidgets import QAbstractButton
+from config import COLOR_ACENTO
 
-#Colores del switch (mismo azul de acento que el resto de la app)
+#Colores del switch (mismo azul de acento que el resto de la app, definido
+#en config.py, en vez de un valor de azul distinto solo para este widget)
 _COLOR_APAGADO = QColor("#4a4a4a")
-_COLOR_ENCENDIDO = QColor("#3d7eff")
+_COLOR_ENCENDIDO = QColor(COLOR_ACENTO)
 _COLOR_BOLA = QColor("#ffffff")
+
+#Tamaño del switch: antes era 44x24, desproporcionado frente al texto de
+#13px de las filas de Ajustes. Reducido a una escala mas acorde (34x18).
+_ANCHO = 34
+_ALTO = 18
 
 
 class Interruptor(QAbstractButton):
@@ -21,7 +28,7 @@ class Interruptor(QAbstractButton):
         self._posicion = 1.0 if activadoInicial else 0.0
         self.setChecked(activadoInicial)
 
-        self.setFixedSize(44, 24)
+        self.setFixedSize(_ANCHO, _ALTO)
         self.setCursor(Qt.PointingHandCursor)
 
         self._animacion = QPropertyAnimation(self, b"posicion", self)
@@ -46,7 +53,7 @@ class Interruptor(QAbstractButton):
     posicion = Property(float, _obtenerPosicion, _fijarPosicion)
 
     def sizeHint(self):
-        return QSize(44, 24)
+        return QSize(_ANCHO, _ALTO)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -66,7 +73,7 @@ class Interruptor(QAbstractButton):
         painter.setBrush(colorFondo)
         painter.drawRoundedRect(rect, rect.height() / 2, rect.height() / 2)
 
-        margen = 3
+        margen = 2
         diametroBola = rect.height() - margen * 2
         xMinimo = margen
         xMaximo = rect.width() - margen - diametroBola

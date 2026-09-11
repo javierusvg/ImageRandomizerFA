@@ -1,80 +1,88 @@
 from PySide6.QtCore import Qt, QTime, Signal
 from PySide6.QtWidgets import (
-    QDialog, QLabel, QPushButton, QSlider, QTimeEdit,
-    QGridLayout, QVBoxLayout, QHBoxLayout
+    QDialog, QLabel, QPushButton, QSlider, QTimeEdit, QAbstractSpinBox,
+    QGridLayout, QVBoxLayout, QHBoxLayout, QFrame
 )
+from config import COLOR_ACENTO, COLOR_ACENTO_HOVER
 from ui.Interruptor import Interruptor
 
 #--- ESTILO PROPIO DEL DIALOGO ---
-#Reutiliza la paleta oscura y el azul de acento (#3d7eff) del resto de la app.
-ESTILO_AJUSTES = """
-QDialog {
+ESTILO_AJUSTES = f"""
+QDialog {{
     background-color: #2b2b2b;
     color: #dcdcdc;
-}
+}}
 
-QLabel {
+QLabel {{
     color: #dcdcdc;
     font-size: 13px;
-}
+}}
 
-QLabel:disabled {
+QLabel:disabled {{
     color: #6e6e6e;
-}
+}}
 
-QTimeEdit {
+QFrame#separadorAjustes {{
+    background-color: #1a1a1a;
+    max-height: 1px;
+    border: none;
+}}
+
+QTimeEdit {{
     background-color: #1e1e1e;
     color: #dcdcdc;
     border: 1px solid #3a3a3a;
     border-radius: 4px;
-    padding: 2px 6px;
-}
+    padding: 2px 8px;
+    font-size: 13px;
+}}
 
-QSlider::groove:horizontal {
-    height: 4px;
+QSlider::groove:horizontal {{
+    height: 3px;
     background: #1e1e1e;
-    border-radius: 2px;
-}
+    border-radius: 1px;
+}}
 
-QSlider::handle:horizontal {
-    width: 14px;
-    margin: -5px 0;
-    background: #3d7eff;
-    border-radius: 7px;
-}
+QSlider::sub-page:horizontal {{
+    background: {COLOR_ACENTO};
+    border-radius: 1px;
+}}
 
-QSlider::handle:horizontal:disabled {
-    background: #4a4a4a;
-}
-
-QSlider::sub-page:horizontal:disabled {
+QSlider::sub-page:horizontal:disabled {{
     background: #3a3a3a;
-}
+}}
 
-QPushButton#botonCerrarAjustes {
-    background-color: #3d7eff;
+QSlider::handle:horizontal {{
+    width: 12px;
+    height: 12px;
+    margin: -5px 0;
+    background: {COLOR_ACENTO};
+    border-radius: 6px;
+}}
+
+QSlider::handle:horizontal:disabled {{
+    background: #4a4a4a;
+}}
+
+QPushButton#botonCerrarAjustes {{
+    background-color: {COLOR_ACENTO};
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 4px 16px;
+    padding: 6px 20px;
     font-weight: 500;
-}
+}}
 
-QPushButton#botonCerrarAjustes:hover {
-    background-color: #5590ff;
-}
+QPushButton#botonCerrarAjustes:hover {{
+    background-color: {COLOR_ACENTO_HOVER};
+}}
 """
+
+
 class AjustesTemporizador(QDialog):
     """
     Panel de ajustes del temporizador: Tiempo, Parar al acabar, Alarma,
     Volumen alarma y Randomizar al acabar.
-
-    Los cambios se aplican en vivo directamente sobre la instancia de
-    core.Temporizador recibida (sin botones Aceptar/Cancelar), porque
-    es un panel de configuracion simple, no un formulario que se confirma.
-    Al modificar cualquier valor emite configuracionModificada para que
-    VentanaPrincipal pueda refrescar el bloque visible del temporizador
-    (por ejemplo si se cambia el tiempo mientras esta en pausa).
     """
 
     configuracionModificada = Signal()
@@ -85,12 +93,18 @@ class AjustesTemporizador(QDialog):
 
         self.setWindowTitle("Ajustes del temporizador")
         self.setStyleSheet(ESTILO_AJUSTES)
-        self.setFixedWidth(320)
+        #Ancho subido de 400 a 480: el slider de volumen ahora es mas largo (170px)
+        #y necesitaba mas hueco para no obligar a recortar las etiquetas largas.
+        self.setFixedWidth(480)
 
         #--- FILA: TIEMPO ---
         etiquetaTiempo = QLabel("Tiempo")
         self.selectorTiempo = QTimeEdit()
         self.selectorTiempo.setDisplayFormat("mm:ss")
+        self.selectorTiempo.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        self.selectorTiempo.setFixedHeight(26)
+        self.selectorTiempo.setFixedWidth(70)
+        self.selectorTiempo.setAlignment(Qt.AlignCenter)
         minutos, segundos = divmod(self.temporizador.tiempoTotal, 60)
         self.selectorTiempo.setTime(QTime(0, minutos, segundos))
         self.selectorTiempo.timeChanged.connect(self.cambiarTiempo)
@@ -108,6 +122,8 @@ class AjustesTemporizador(QDialog):
         #--- FILA: VOLUMEN ALARMA (depende de Alarma) ---
         self.etiquetaVolumen = QLabel("Volumen alarma")
         self.sliderVolumen = QSlider(Qt.Horizontal)
+        #Ancho subido de 110 a 170: se veia demasiado corto respecto al resto de controles.
+        self.sliderVolumen.setFixedWidth(170)
         self.sliderVolumen.setRange(0, 100)
         self.sliderVolumen.setValue(self.temporizador.volumenAlarma)
         self.sliderVolumen.valueChanged.connect(self.cambiarVolumen)
@@ -120,27 +136,31 @@ class AjustesTemporizador(QDialog):
         self.interruptorRandomizar = Interruptor(self.temporizador.randomizarImagenesAlAcabar)
         self.interruptorRandomizar.toggled.connect(self.cambiarRandomizar)
 
-        #--- MONTAJE: rejilla etiqueta (izquierda) + control (derecha) ---
+        #--- MONTAJE: rejilla etiqueta (izquierda) + control (alineado a la derecha) ---
         filas = QGridLayout()
         filas.setContentsMargins(0, 0, 0, 0)
-        filas.setHorizontalSpacing(16)
-        filas.setVerticalSpacing(14)
+        filas.setHorizontalSpacing(20)
+        filas.setVerticalSpacing(16)
         filas.setColumnStretch(0, 1)
 
         filas.addWidget(etiquetaTiempo, 0, 0)
-        filas.addWidget(self.selectorTiempo, 0, 1)
+        filas.addWidget(self.selectorTiempo, 0, 1, Qt.AlignRight)
 
         filas.addWidget(etiquetaParar, 1, 0)
-        filas.addWidget(self.interruptorParar, 1, 1)
+        filas.addWidget(self.interruptorParar, 1, 1, Qt.AlignRight)
 
         filas.addWidget(etiquetaAlarma, 2, 0)
-        filas.addWidget(self.interruptorAlarma, 2, 1)
+        filas.addWidget(self.interruptorAlarma, 2, 1, Qt.AlignRight)
 
         filas.addWidget(self.etiquetaVolumen, 3, 0)
-        filas.addWidget(self.sliderVolumen, 3, 1)
+        filas.addWidget(self.sliderVolumen, 3, 1, Qt.AlignRight)
 
         filas.addWidget(etiquetaRandomizar, 4, 0)
-        filas.addWidget(self.interruptorRandomizar, 4, 1)
+        filas.addWidget(self.interruptorRandomizar, 4, 1, Qt.AlignRight)
+
+        separador = QFrame()
+        separador.setObjectName("separadorAjustes")
+        separador.setFrameShape(QFrame.HLine)
 
         botonCerrar = QPushButton("Cerrar")
         botonCerrar.setObjectName("botonCerrarAjustes")
@@ -151,9 +171,10 @@ class AjustesTemporizador(QDialog):
         filaBoton.addWidget(botonCerrar)
 
         layoutPrincipal = QVBoxLayout(self)
-        layoutPrincipal.setContentsMargins(20, 20, 20, 16)
-        layoutPrincipal.setSpacing(20)
+        layoutPrincipal.setContentsMargins(24, 22, 24, 20)
+        layoutPrincipal.setSpacing(18)
         layoutPrincipal.addLayout(filas)
+        layoutPrincipal.addWidget(separador)
         layoutPrincipal.addLayout(filaBoton)
 
     #--- GESTORES: escriben en el Temporizador real y avisan a VentanaPrincipal ---
