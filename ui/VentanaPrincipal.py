@@ -1,15 +1,19 @@
-from PySide6.QtWidgets import QWidget, QSpinBox, QPushButton, QHBoxLayout, QVBoxLayout, QFrame, QMenuBar, QMenu, QGraphicsBlurEffect
+from PySide6.QtWidgets import QWidget, QSpinBox, QPushButton, QHBoxLayout, QVBoxLayout, QFrame, QMenuBar, QMenu, QGraphicsBlurEffect, QDialog
 from PySide6.QtCore import Qt, QTimer, QUrl
+from PySide6.QtGui import QActionGroup
 from PySide6.QtMultimedia import QSoundEffect
 from pathlib import Path
 from config import *
 from core.ListaImagenes import *
 from core.Temporizador import Temporizador
+from core.GestorCarpetas import cargarConfiguracionCarpetas, guardarConfiguracionCarpetas, rutasActivas
+from core.GestorIdioma import idioma
 from ui.ColocadorImagenes import ColocadorImagenes
 from ui.ZoomImagen import ZoomImagen
 from ui.TemporizadorWidget import TemporizadorWidget
 from ui.AjustesTemporizador import AjustesTemporizador
 from ui.AvisoTiempoAgotado import AvisoTiempoAgotado
+from ui.DialogoCarpetas import GestorCarpetasDialog
 
 #--- ESTILO GLOBAL DE LA APP (QSS) ---
 ESTILO_APP = f"""
@@ -100,19 +104,22 @@ class VentanaPrincipal(QWidget):
     def __init__(self):
         super().__init__()
 
-        #Vuelta a 27 (sin cambios de altura de barra, tal como pediste).
         alturaBarraSuperior = 27
         alturaBarraInferior = 34
 
         #--- CONFIGURACION VISUAL BASE ---
         self.setStyleSheet(ESTILO_APP)
 
-        #--- ESTADO DE DATOS: POOL DE IMAGENES ---
+        #--- ESTADO DE DATOS: CARPETAS Y POOL DE IMAGENES ---
         self.numeroImagenesSeleccionado = NUMERO_IMAGENES_INICIALES
-        self.carpetas = [Path(r"C:\Wac\Estudio\RandomImageSelector_V3.2\Example_Reference_Library")]
+        self.entradasCarpetas = cargarConfiguracionCarpetas()
+        self.carpetas = rutasActivas(self.entradasCarpetas)
 
         self.imagenesPool = cargarImagenes(self.carpetas)
-        self.imagenesElegidas = elegirImagenes(self.numeroImagenesSeleccionado, self.imagenesPool)
+        try:
+            self.imagenesElegidas = elegirImagenes(self.numeroImagenesSeleccionado, self.imagenesPool)
+        except ValueError:
+            self.imagenesElegidas = []
 
         #--- WIDGETS FUNCIONALES ---
         self.colocador = ColocadorImagenes(self.imagenesElegidas)
@@ -128,7 +135,7 @@ class VentanaPrincipal(QWidget):
         self.spinbox.setValue(self.numeroImagenesSeleccionado)
         self.spinbox.valueChanged.connect(self.actualizarNumeroSeleccionado)
 
-        self.botonRandomizar = QPushButton("Randomizar")
+        self.botonRandomizar = QPushButton(idioma.traducir("panel.randomizar"))
         self.botonRandomizar.clicked.connect(self.randomizarTodo)
 
         #--- TEMPORIZADOR: ESTADO, SONIDO Y AVISO EN PANTALLA ---
@@ -137,13 +144,11 @@ class VentanaPrincipal(QWidget):
         self._sonidoAlarma = QSoundEffect(self)
         self._sonidoAlarma.setSource(QUrl.fromLocalFile(RUTA_SONIDO_ALARMA))
 
-        #alturaBoton = alturaBarraSuperior - 4: TemporizadorWidget suma 2px de
-        #margen arriba y 2px abajo por dentro, asi que el bloque resultante
-        #(27 = 23 + 2 + 2) ocupa EXACTAMENTE toda la altura de la barra,
-        #sin quedar mas pequeño que ella como pasaba antes.
         self.temporizadorWidget = TemporizadorWidget(alturaBoton=alturaBarraSuperior - 4)
         self.temporizadorWidget.actualizarTiempo(self.temporizador.tiempoFormateado())
         self.temporizadorWidget.actualizarEstadoPlayPausa(self.temporizador.contando)
+        self.temporizadorWidget.botonReiniciar.setToolTip(idioma.traducir("temporizador.tooltip_reiniciar"))
+        self.temporizadorWidget.botonPlayPausa.setToolTip(idioma.traducir("temporizador.tooltip_playpausa"))
         self.temporizadorWidget.reiniciarSolicitado.connect(self.gestionarReinicioTemporizador)
         self.temporizadorWidget.playPausaSolicitado.connect(self.gestionarPlayPausaTemporizador)
 
@@ -153,6 +158,9 @@ class VentanaPrincipal(QWidget):
         self.relojInterno.setInterval(1000)
         self.relojInterno.timeout.connect(self.tickTemporizador)
         self.relojInterno.start()
+
+        #--- IDIOMA: refresco en vivo de los textos siempre visibles ---
+        idioma.idiomaCambiado.connect(self.actualizarTextos)
 
         #--- CONSTRUCCION DE LA ESTRUCTURA VISUAL (3 BANDAS) ---
         barraSuperior = QWidget()
@@ -193,31 +201,86 @@ class VentanaPrincipal(QWidget):
 
         self.setLayout(layoutPrincipal)
 
+    #--- MENU SUPERIOR: "Carpeta" es accion directa; "Idioma" vive dentro de "Ajustes" ---
     def crearMenuSuperior(self):
-        menuCarpeta = QMenu("Carpeta", self)
-
-        menuAjustes = QMenu("Ajustes", self)
-        menuAjustes.addMenu(QMenu("Idioma", self))
-        accionTemporizador = menuAjustes.addAction("Temporizador")
-        accionTemporizador.triggered.connect(self.abrirAjustesTemporizador)
-
         menuBar = QMenuBar(self)
-        menuBar.addMenu(menuCarpeta)
-        menuBar.addMenu(menuAjustes)
+
+        self.accionCarpeta = menuBar.addAction(idioma.traducir("menu.carpeta"))
+        self.accionCarpeta.triggered.connect(self.abrirGestorCarpetas)
+
+        self.menuAjustes = QMenu(idioma.traducir("menu.ajustes"), self)
+
+        #Submenu Idioma: dos acciones marcables y mutuamente excluyentes
+        #(QActionGroup), como en cualquier selector de idioma "de verdad".
+        self.menuIdioma = QMenu(idioma.traducir("menu.idioma"), self)
+        grupoIdiomas = QActionGroup(self)
+        grupoIdiomas.setExclusive(True)
+
+        self.accionEspanol = self.menuIdioma.addAction(idioma.traducir("menu.idioma_es"))
+        self.accionEspanol.setCheckable(True)
+        self.accionEspanol.setChecked(idioma.idiomaActual == "es")
+        self.accionEspanol.triggered.connect(lambda: idioma.cambiarIdioma("es"))
+        grupoIdiomas.addAction(self.accionEspanol)
+
+        self.accionIngles = self.menuIdioma.addAction(idioma.traducir("menu.idioma_en"))
+        self.accionIngles.setCheckable(True)
+        self.accionIngles.setChecked(idioma.idiomaActual == "en")
+        self.accionIngles.triggered.connect(lambda: idioma.cambiarIdioma("en"))
+        grupoIdiomas.addAction(self.accionIngles)
+
+        self.menuAjustes.addMenu(self.menuIdioma)
+
+        self.accionTemporizador = self.menuAjustes.addAction(idioma.traducir("menu.temporizador"))
+        self.accionTemporizador.triggered.connect(self.abrirAjustesTemporizador)
+
+        menuBar.addMenu(self.menuAjustes)
 
         return menuBar
+
+    #--- REFRESCO DE TEXTOS AL CAMBIAR DE IDIOMA ---
+    def actualizarTextos(self):
+        self.accionCarpeta.setText(idioma.traducir("menu.carpeta"))
+        self.menuAjustes.setTitle(idioma.traducir("menu.ajustes"))
+        self.menuIdioma.setTitle(idioma.traducir("menu.idioma"))
+        self.accionEspanol.setText(idioma.traducir("menu.idioma_es"))
+        self.accionIngles.setText(idioma.traducir("menu.idioma_en"))
+        self.accionTemporizador.setText(idioma.traducir("menu.temporizador"))
+
+        self.botonRandomizar.setText(idioma.traducir("panel.randomizar"))
+
+        self.temporizadorWidget.botonReiniciar.setToolTip(idioma.traducir("temporizador.tooltip_reiniciar"))
+        self.temporizadorWidget.botonPlayPausa.setToolTip(idioma.traducir("temporizador.tooltip_playpausa"))
+
+        self.avisoTiempo.retraducir()
+
+    #--- GESTOR DE CARPETAS ---
+    def abrirGestorCarpetas(self):
+        dialogo = GestorCarpetasDialog(self.entradasCarpetas, self)
+
+        if dialogo.exec() == QDialog.Accepted:
+            self.entradasCarpetas = dialogo.obtenerEntradasFinales()
+            guardarConfiguracionCarpetas(self.entradasCarpetas)
+            self.carpetas = rutasActivas(self.entradasCarpetas)
+            self.imagenesPool = cargarImagenes(self.carpetas)
 
     def actualizarNumeroSeleccionado(self, valor):
         self.numeroImagenesSeleccionado = valor
 
     def randomizarTodo(self):
-        nuevasImagenesElegidas = elegirImagenes(self.numeroImagenesSeleccionado, self.imagenesPool, self.imagenesElegidas)
+        try:
+            nuevasImagenesElegidas = elegirImagenes(self.numeroImagenesSeleccionado, self.imagenesPool, self.imagenesElegidas)
+        except ValueError:
+            return
+
         self.imagenesElegidas = nuevasImagenesElegidas
         self.colocador.actualizarImagenes(self.imagenesElegidas)
         self.zoom.hide()
 
     def gestionarSolicitudNuevaImagen(self, tileOrigen, rutasVisibles):
-        resultado = elegirImagenes(1, self.imagenesPool, rutasVisibles)
+        try:
+            resultado = elegirImagenes(1, self.imagenesPool, rutasVisibles)
+        except ValueError:
+            return
         nuevaImagen = resultado[0]
         self.colocador.sustituirImagenEnTile(tileOrigen, nuevaImagen)
 

@@ -1,11 +1,10 @@
-
 #ENTRADA:
-#   proporciones: Lista de las proporciones(ancho/alto) de las imagenes
-#   anchoDisponible: Ancho disponible en ventana
-#   altoObjetivoFila: Altura objetivo de la fila(altura maxima de la ventana)
-#   gap: separacion entre imagenes.
+# proporciones: Lista de las proporciones(ancho/alto) de las imagenes
+# anchoDisponible: Ancho disponible en ventana
+# altoObjetivoFila: Altura objetivo de la fila(altura maxima de la ventana)
+# gap: separacion entre imagenes.
 #SALIDA:
-#   Lista de rectangulos(uno por imagen), con sus posiciones -> [(x, y, ancho, alto), ...]
+# Lista de rectangulos(uno por imagen), con sus posiciones -> [(x, y, ancho, alto), ...]
 def calcularLayout(proporciones,anchoDisponible, altoObjetivoFila, gap):
     filas = agruparEnFilas(proporciones, anchoDisponible, altoObjetivoFila, gap)
     rectangulos = calcularRectangulos(filas, anchoDisponible, gap,altoObjetivoFila)
@@ -40,7 +39,6 @@ def calcularRectangulos(filas, anchoDisponible, gap, alturaObjetivo):
     altura_maxima = alturaObjetivo * factorAlturaMaxima
     altura_minima = alturaObjetivo * factorAlturaMinima
 
-
     for fila in filas:
         n = len(fila)
         sumaProporciones = sum(fila)
@@ -63,6 +61,13 @@ def calcularRectangulos(filas, anchoDisponible, gap, alturaObjetivo):
     return rectangulos
 
 def ajustarAltoDisponible(proporciones, anchoDisponible, altoDisponible, alturaObjetivoInicial, gap):
+    #Sin imagenes que colocar (pool vacio o todas las carpetas deshabilitadas):
+    #no hay nada que calcular. Sin esta guarda, el max() de mas abajo revienta
+    #con "ValueError: max() iterable argument is empty" en cuanto la ventana
+    #se muestra o redimensiona con el collage vacio.
+    if not proporciones:
+        return []
+
     bajo = 50
     alto = altoDisponible * 2
     mejorResultado = None

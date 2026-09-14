@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
     QGridLayout, QVBoxLayout, QHBoxLayout, QFrame
 )
 from config import COLOR_ACENTO, COLOR_ACENTO_HOVER
+from core.GestorIdioma import idioma
 from ui.Interruptor import Interruptor
 
 #--- ESTILO PROPIO DEL DIALOGO ---
@@ -81,8 +82,9 @@ QPushButton#botonCerrarAjustes:hover {{
 
 class AjustesTemporizador(QDialog):
     """
-    Panel de ajustes del temporizador: Tiempo, Parar al acabar, Alarma,
-    Volumen alarma y Randomizar al acabar.
+    Panel de ajustes del temporizador. Se crea de nuevo cada vez que se abre
+    (VentanaPrincipal.abrirAjustesTemporizador), asi que siempre construye
+    sus textos ya en el idioma activo en ese momento via idioma.traducir().
     """
 
     configuracionModificada = Signal()
@@ -91,14 +93,12 @@ class AjustesTemporizador(QDialog):
         super().__init__(parent)
         self.temporizador = temporizador
 
-        self.setWindowTitle("Ajustes del temporizador")
+        self.setWindowTitle(idioma.traducir("ajustes_temporizador.titulo"))
         self.setStyleSheet(ESTILO_AJUSTES)
-        #Ancho subido de 400 a 480: el slider de volumen ahora es mas largo (170px)
-        #y necesitaba mas hueco para no obligar a recortar las etiquetas largas.
         self.setFixedWidth(480)
 
         #--- FILA: TIEMPO ---
-        etiquetaTiempo = QLabel("Tiempo")
+        etiquetaTiempo = QLabel(idioma.traducir("ajustes_temporizador.tiempo"))
         self.selectorTiempo = QTimeEdit()
         self.selectorTiempo.setDisplayFormat("mm:ss")
         self.selectorTiempo.setButtonSymbols(QAbstractSpinBox.NoButtons)
@@ -110,19 +110,18 @@ class AjustesTemporizador(QDialog):
         self.selectorTiempo.timeChanged.connect(self.cambiarTiempo)
 
         #--- FILA: PARAR AL ACABAR ---
-        etiquetaParar = QLabel("Parar el temporizador al acabar")
+        etiquetaParar = QLabel(idioma.traducir("ajustes_temporizador.parar_al_acabar"))
         self.interruptorParar = Interruptor(self.temporizador.pararTemporizadorAlAcabar)
         self.interruptorParar.toggled.connect(self.cambiarPararAlAcabar)
 
         #--- FILA: ALARMA ---
-        etiquetaAlarma = QLabel("Alarma")
+        etiquetaAlarma = QLabel(idioma.traducir("ajustes_temporizador.alarma"))
         self.interruptorAlarma = Interruptor(self.temporizador.alarma)
         self.interruptorAlarma.toggled.connect(self.cambiarAlarma)
 
         #--- FILA: VOLUMEN ALARMA (depende de Alarma) ---
-        self.etiquetaVolumen = QLabel("Volumen alarma")
+        self.etiquetaVolumen = QLabel(idioma.traducir("ajustes_temporizador.volumen_alarma"))
         self.sliderVolumen = QSlider(Qt.Horizontal)
-        #Ancho subido de 110 a 170: se veia demasiado corto respecto al resto de controles.
         self.sliderVolumen.setFixedWidth(170)
         self.sliderVolumen.setRange(0, 100)
         self.sliderVolumen.setValue(self.temporizador.volumenAlarma)
@@ -132,11 +131,11 @@ class AjustesTemporizador(QDialog):
         self.sliderVolumen.setEnabled(self.temporizador.alarma)
 
         #--- FILA: RANDOMIZAR AL ACABAR ---
-        etiquetaRandomizar = QLabel("Randomizar imágenes al acabar")
+        etiquetaRandomizar = QLabel(idioma.traducir("ajustes_temporizador.randomizar_al_acabar"))
         self.interruptorRandomizar = Interruptor(self.temporizador.randomizarImagenesAlAcabar)
         self.interruptorRandomizar.toggled.connect(self.cambiarRandomizar)
 
-        #--- MONTAJE: rejilla etiqueta (izquierda) + control (alineado a la derecha) ---
+        #--- MONTAJE ---
         filas = QGridLayout()
         filas.setContentsMargins(0, 0, 0, 0)
         filas.setHorizontalSpacing(20)
@@ -162,7 +161,7 @@ class AjustesTemporizador(QDialog):
         separador.setObjectName("separadorAjustes")
         separador.setFrameShape(QFrame.HLine)
 
-        botonCerrar = QPushButton("Cerrar")
+        botonCerrar = QPushButton(idioma.traducir("comun.cerrar"))
         botonCerrar.setObjectName("botonCerrarAjustes")
         botonCerrar.clicked.connect(self.accept)
 

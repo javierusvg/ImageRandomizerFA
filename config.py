@@ -20,13 +20,19 @@ TAMAÑO_BOTON_CERRAR_ZOOM_IMG = 20
 #Cosas del temporizador
 
 TIEMPO_TEMPORIZADOR_INICIAL = 300  # 5 minutos, en segundos
-DURACION_AVISO_TIEMPO_AGOTADO = 3000  # milisegundos que se muestra "TIEMPO" en pantalla
+DURACION_AVISO_TIEMPO_AGOTADO = 1000  # milisegundos que se muestra "TIEMPO" en pantalla
 RUTA_SONIDO_ALARMA = "assets/ALRMClok_BigSoundBank.wav"
 
 #--- PALETA DE ACENTO (unica fuente de verdad para el azul de toda la app) ---
-#Usado por: boton Randomizar, QMenuBar/QMenu seleccionados, Interruptor,
-#TemporizadorWidget, AjustesTemporizador y la paleta nativa de Qt (main.py),
-#para que TODO lo interactivo/resaltado use exactamente el mismo azul.
 COLOR_ACENTO = "#3d7eff"
 COLOR_ACENTO_HOVER = "#5590ff"
 COLOR_ACENTO_PRESIONADO = "#2d6ae0"
+
+#--- CARPETAS DE IMAGENES (gestion desde el menu "Carpeta") ---
+MAXIMO_CARPETAS = 6
+RUTA_ARCHIVO_CARPETAS = "carpetas_guardadas.json"
+
+#--- IDIOMA (internacionalizacion) ---
+IDIOMA_POR_DEFECTO = "en"
+RUTA_ARCHIVO_IDIOMA = "idioma_guardado.json"
+CARPETA_TRADUCCIONES = "i18n"

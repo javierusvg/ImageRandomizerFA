@@ -1,11 +1,7 @@
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsOpacityEffect
+from core.GestorIdioma import idioma
 
-#--- ESTILO DEL AVISO ---
-#Solo texto, sin tarjeta/fondo propio detras (se quito a peticion expresa).
-#La legibilidad sobre imagenes claras la sigue dando la cortina semitransparente
-#de fondo (self.setStyleSheet mas abajo, igual recurso que usa ZoomImagen),
-#que oscurece TODO el collage antes de pintar el texto encima.
 ESTILO_AVISO = """
 QLabel#tarjetaAvisoTiempo {
     color: white;
@@ -19,17 +15,16 @@ QLabel#tarjetaAvisoTiempo {
 class AvisoTiempoAgotado(QWidget):
     """
     Overlay que se muestra centrado sobre el collage cuando el temporizador
-    llega a 0. Se posiciona igual que ZoomImagen (sobre self.parent().colocador).
-    La cortina oscura semitransparente (heredada del mismo patron que ZoomImagen)
-    es la que garantiza que el texto se lea sin importar el color de las
-    imagenes visibles detras; el texto en si no lleva ningun fondo propio.
+    llega a 0. Es persistente (se crea una sola vez en VentanaPrincipal),
+    asi que necesita su propio metodo retraducir() para actualizarse si el
+    idioma cambia mientras la app esta abierta.
     """
 
     def __init__(self, parent):
         super().__init__(parent)
         self.setStyleSheet("background-color: rgba(0, 0, 0, 140);")
 
-        self.tarjeta = QLabel("TIEMPO", self)
+        self.tarjeta = QLabel(idioma.traducir("aviso_tiempo.texto"), self)
         self.tarjeta.setObjectName("tarjetaAvisoTiempo")
         self.tarjeta.setStyleSheet(ESTILO_AVISO)
         self.tarjeta.setAlignment(Qt.AlignCenter)
@@ -60,3 +55,6 @@ class AvisoTiempoAgotado(QWidget):
     def actualizarSiVisible(self):
         if self.isVisible():
             self.setGeometry(self.parent().colocador.geometry())
+
+    def retraducir(self):
+        self.tarjeta.setText(idioma.traducir("aviso_tiempo.texto"))

@@ -1,0 +1,38 @@
+{
+  "menu.carpeta": "Carpeta",
+  "menu.ajustes": "Ajustes",
+  "menu.idioma": "Idioma",
+  "menu.idioma_es": "Español",
+  "menu.idioma_en": "English",
+  "menu.temporizador": "Temporizador",
+
+  "panel.randomizar": "Randomizar",
+
+
+
+  "ajustes_temporizador.titulo": "Ajustes del temporizador",
+  "ajustes_temporizador.tiempo": "Tiempo",
+  "ajustes_temporizador.parar_al_acabar": "Parar el temporizador al acabar",
+  "ajustes_temporizador.alarma": "Alarma",
+  "ajustes_temporizador.volumen_alarma": "Volumen alarma",
+  "ajustes_temporizador.randomizar_al_acabar": "Randomizar imágenes al acabar",
+
+  "comun.cerrar": "Cerrar",
+  "comun.cancelar": "Cancelar",
+  "comun.aceptar": "Aceptar",
+
+  "carpetas.titulo_gestor": "Gestionar carpetas",
+  "carpetas.titulo_editar": "Editar carpeta",
+  "carpetas.nombre": "Nombre",
+  "carpetas.carpeta": "Carpeta",
+  "carpetas.cambiar_carpeta": "Cambiar carpeta",
+  "carpetas.selecciona_carpeta": "Selecciona una carpeta",
+  "carpetas.duplicada_titulo": "Carpeta duplicada",
+  "carpetas.duplicada_mensaje": "Esa carpeta ya está añadida en otro recuadro.",
+  "carpetas.editar": "Editar",
+  "carpetas.deshabilitar": "Deshabilitar",
+  "carpetas.habilitar": "Habilitar",
+  "carpetas.eliminar": "Eliminar",
+
+  "aviso_tiempo.texto": "TIEMPO"
+}

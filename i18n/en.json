@@ -1,0 +1,38 @@
+{
+  "menu.carpeta": "File",
+  "menu.ajustes": "Settings",
+  "menu.idioma": "Language",
+  "menu.idioma_es": "Español",
+  "menu.idioma_en": "English",
+  "menu.temporizador": "Timer",
+
+  "panel.randomizar": "Randomize",
+
+
+
+  "ajustes_temporizador.titulo": "Timer settings",
+  "ajustes_temporizador.tiempo": "Time",
+  "ajustes_temporizador.parar_al_acabar": "Stop timer when finished",
+  "ajustes_temporizador.alarma": "Alarm",
+  "ajustes_temporizador.volumen_alarma": "Alarm volume",
+  "ajustes_temporizador.randomizar_al_acabar": "Randomize images when finished",
+
+  "comun.cerrar": "Close",
+  "comun.cancelar": "Cancel",
+  "comun.aceptar": "Accept",
+
+  "carpetas.titulo_gestor": "Manage folders",
+  "carpetas.titulo_editar": "Edit folder",
+  "carpetas.nombre": "Name",
+  "carpetas.carpeta": "Folder",
+  "carpetas.cambiar_carpeta": "Change folder",
+  "carpetas.selecciona_carpeta": "Select a folder",
+  "carpetas.duplicada_titulo": "Duplicate folder",
+  "carpetas.duplicada_mensaje": "That folder has already been added in another box.",
+  "carpetas.editar": "Edit",
+  "carpetas.deshabilitar": "Disable",
+  "carpetas.habilitar": "Enable",
+  "carpetas.eliminar": "Delete",
+
+  "aviso_tiempo.texto": "TIME"
+}
