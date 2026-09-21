@@ -1,0 +1,29 @@
+# --- Python ---
+__pycache__/
+*.pyc
+
+# --- Virtual environment ---
+.venv/
+venv/
+env/
+
+# --- Secrets / credentials (never commit) ---
+.env
+pinterest_tokens.json
+
+# --- User-generated app data (created at runtime, not source code) ---
+carpetas_guardadas.json
+idioma_guardado.json
+
+# --- PyInstaller build output ---
+build/
+dist/
+*.spec
+
+# --- IDE / editor ---
+.idea/
+.vscode/
+
+# --- OS-specific junk files ---
+.DS_Store
+Thumbs.db

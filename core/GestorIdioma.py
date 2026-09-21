@@ -3,7 +3,6 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Signal
 from config import IDIOMA_POR_DEFECTO, RUTA_ARCHIVO_IDIOMA, CARPETA_TRADUCCIONES
 
-
 class GestorIdioma(QObject):
     """
     Estado y logica del idioma activo de la app.
