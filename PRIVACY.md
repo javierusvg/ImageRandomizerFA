@@ -1,60 +1,106 @@
-# Política de privacidad — Image Randomizer
+# Privacy Policy — Image Randomizer FA
 
-**Última actualización:** 16 de septiembre de 2026
+**Effective date:** September 21, 2026  
+**Last updated:** September 21, 2026
 
-Image Randomizer es una aplicación de escritorio de uso personal, desarrollada de forma individual y sin fines comerciales, que muestra imágenes de referencia visual (para inspirar dibujo y diseño de personajes) combinando carpetas locales del propio ordenador del usuario con los tableros de Pinterest de la propia cuenta del usuario.
+Image Randomizer FA is a personal, non-commercial Windows desktop application for generating visual-reference collages from image sources selected by the user. The application is developed as an open-source local application.
 
-Esta página describe qué datos se acceden, cómo se usan y cómo se protegen cuando la aplicación se conecta con la cuenta de Pinterest del usuario mediante OAuth 2.0.
+This Privacy Policy explains how Image Randomizer FA handles information when you use its local features and, when available, choose to connect your Pinterest account through Pinterest's official OAuth authorization flow.
 
-## Qué datos se acceden
+## Summary
 
-Cuando el usuario conecta su cuenta de Pinterest desde la aplicación, esta accede únicamente a:
+- The app runs locally on your computer.
+- Local reference images remain in folders selected by you and are not uploaded by the app.
+- The Pinterest integration is intended only for Pinterest data that you explicitly authorize through OAuth.
+- Pinterest API data is used only to provide the reference-selection feature during the active app session.
+- Pinterest API data, including board and Pin lists, is not persistently stored on disk.
+- The app does not sell, rent, share, or use personal data for advertising, analytics, profiling, or AI/ML training.
+- There is no developer-operated backend server or third-party data broker.
 
-- La lista de tableros propios de la cuenta autenticada.
-- Los pines (imágenes) contenidos en los tableros propios que el usuario decide sincronizar.
+## Local application data
 
-La aplicación **no** accede a tableros ni pines de otras cuentas, no publica contenido, no crea ni modifica pines ni tableros, y no realiza ninguna acción en nombre del usuario más allá de leer sus propios tableros.
+### Local image folders
 
-## Cómo se usan esos datos
+You may select folders on your device as image sources. The app reads supported image files from active folders to build a local random-reference pool.
 
-Las imágenes de los tableros conectados se cargan directamente en memoria desde la propia aplicación, para mostrarse junto a las imágenes de las carpetas locales del usuario dentro de la interfaz. No se procesan con ningún fin distinto al de visualización personal como referencia de dibujo.
+Your local image files are not copied, uploaded, transmitted, or made available to the developer. Their paths are used locally only to display selected references in the application.
 
-## Dónde se almacenan los datos
+### Local settings
 
-- El token de acceso y el token de renovación (`access_token` / `refresh_token`) que Pinterest entrega tras la autenticación se guardan **únicamente en el ordenador local del usuario**, en un archivo de configuración de la propia aplicación.
-- Estos tokens **nunca se envían a ningún servidor de terceros**, ni se recopilan, ni se almacenan en ninguna base de datos externa. La comunicación ocurre exclusivamente entre el ordenador del usuario y los servidores oficiales de Pinterest (`api.pinterest.com`).
-- Las imágenes de los pines no se guardan como archivo permanente en el disco del usuario; se cargan en memoria mientras la aplicación está abierta y se descartan al cerrarla.
+The app stores limited settings locally on your device, including configured image-folder entries and the selected interface language. These settings remain on your computer and are used only to restore your preferences when the app is opened again.
 
-## Qué no se hace con los datos
+## Pinterest integration
 
-- No se comparten, venden, alquilan ni transfieren datos a terceros bajo ninguna circunstancia.
-- No se realiza seguimiento (tracking), analítica de comportamiento ni perfiles de usuario.
-- No existe ningún servidor intermedio operado por el desarrollador: la aplicación es un programa local que el usuario ejecuta en su propio equipo.
-- No se accede a información personal de la cuenta de Pinterest más allá de la necesaria para leer los tableros propios (no se accede a mensajes, contactos, datos de pago ni información de perfil no relacionada con tableros/pines).
+Pinterest integration is the next planned feature of Image Randomizer FA. If you choose to use it once it is available, the app will use Pinterest's official OAuth authorization flow. The app will not ask for, collect, or store your Pinterest password, session cookies, or login credentials.
 
-## Revocar el acceso
+### Permissions and data accessed
 
-El usuario puede revocar el acceso de la aplicación a su cuenta de Pinterest en cualquier momento desde la configuración de aplicaciones autorizadas de su cuenta de Pinterest (`pinterest.com` → Configuración → Aplicaciones/Apps autorizadas). Al revocarlo, la aplicación deja de poder renovar el token y las carpetas de Pinterest se desactivan automáticamente en la interfaz sin afectar al resto del programa.
+The integration is intended to request only the Pinterest permissions needed for the feature: reading boards and Pins that belong to, or are available to, the Pinterest account you authorize.
 
-El usuario también puede eliminar en cualquier momento el archivo local donde se guardan los tokens, sin necesidad de desinstalar la aplicación, para borrar la sesión guardada.
+After you authorize the app, it may access:
 
-## Código abierto
+- Board identifiers and names needed to let you select a board as a reference source.
+- Pin identifiers and image URLs needed to select and display authorized Pins as visual references.
+- OAuth access and refresh tokens needed to maintain the authorized connection.
 
-El código fuente completo de Image Randomizer es público y puede revisarse en su repositorio de GitHub, incluida la forma exacta en que se gestionan los tokens de Pinterest y en que se realizan las peticiones a su API.
+The app is not intended to publish Pins, create or edit boards, modify Pinterest content, access Pinterest passwords, or perform actions on your behalf beyond the authorized read-only reference workflow.
 
-## Contacto
+### How Pinterest data is used
 
-Para cualquier duda sobre esta política de privacidad o sobre el tratamiento de datos de la aplicación, puede contactarse a través del perfil de GitHub del desarrollador o del correo indicado en el repositorio del proyecto.
+Pinterest data will be used solely to provide the user-facing visual-reference feature:
 
----
+1. The app requests authorized board and Pin information from Pinterest when it is needed for the current session.
+2. Authorized Pins may be included in the same random-reference pool as local images.
+3. When a Pinterest Pin is selected for display, its image is loaded from Pinterest's image service on demand and displayed in the app.
 
-## Privacy Policy (English summary)
+The app does not use Pinterest data for advertising, behavioral profiling, analytics, resale, audience building, or AI/ML training.
 
-Image Randomizer is a personal, non-commercial desktop application that displays visual reference images by combining local folders with the user's own Pinterest boards.
+### Storage and retention
 
-- The app only reads the authenticated user's own boards and pins via Pinterest's OAuth 2.0 API. It never creates, modifies, or publishes any content, and never accesses other users' boards.
-- Access and refresh tokens are stored **only locally** on the user's own computer and are never transmitted to any third-party server. All communication happens directly between the user's device and Pinterest's official API (`api.pinterest.com`).
-- Pinterest images are loaded into memory for display only and are not permanently saved to disk.
-- No data is sold, shared, or used for tracking or analytics of any kind.
-- The user can revoke access at any time from their Pinterest account settings, or delete the local token file to end the session.
-- The full source code is publicly available on the project's GitHub repository.
+Image Randomizer FA is designed not to persist Pinterest API content.
+
+- Board data, Pin data, Pin identifiers, image URLs, and decoded Pinterest images are kept in memory only while the app is running.
+- This transient in-memory data is discarded when the application closes.
+- The app calls the Pinterest API again when information is needed in a later session rather than maintaining a disk cache of Pinterest API data.
+- Pinterest images are not downloaded as permanent image files by the app.
+
+OAuth access and refresh tokens are treated separately from Pinterest content. They are stored locally on the user's device only to maintain the authorized connection between sessions. They are not uploaded to a developer-operated server, committed to the public source repository, sold, or shared with third parties.
+
+## Sharing and disclosures
+
+Image Randomizer FA does not operate a backend service and does not sell, rent, trade, or disclose user data to third parties.
+
+When Pinterest integration is used, communication takes place directly between your device and Pinterest's services as required to complete OAuth authorization and API requests. Pinterest's handling of information is governed by its own policies and terms.
+
+## Revoking access and deleting local data
+
+You can stop using the Pinterest integration at any time.
+
+- You may revoke the app's authorization through the authorized-applications settings in your Pinterest account.
+- You may delete the app's locally stored Pinterest token file to remove the saved local connection.
+- You may delete the app's local settings files to remove saved folder configuration and language preferences.
+- Closing the app clears its in-memory Pinterest board, Pin, URL, and image data.
+
+Revoking access prevents the app from obtaining or refreshing authorization for future Pinterest API requests.
+
+## Security
+
+The app uses Pinterest's official OAuth authorization flow rather than collecting Pinterest credentials. Tokens are intended to remain on the local device and are excluded from the public repository through version-control rules.
+
+No system can guarantee absolute security. You are responsible for keeping access to your device and local application-data folder secure.
+
+## Children
+
+Image Randomizer FA is not directed to children. The developer does not knowingly collect personal information from children.
+
+## Changes to this policy
+
+This policy may be updated when the application changes, particularly when the Pinterest integration is implemented or its data handling changes. The effective date at the top of this document will be updated when material changes are made.
+
+## Contact
+
+For questions about this Privacy Policy or Image Randomizer FA's data practices, please open an issue in the project's public GitHub repository.
+
+## Open-source transparency
+
+The source code for Image Randomizer FA is publicly available in its GitHub repository. The repository is intended to make the app's local storage, OAuth, and Pinterest API handling reviewable.
