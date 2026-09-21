@@ -2,7 +2,7 @@
 
 > A desktop visual-reference tool for artists and character designers. It builds a random, responsive collage from your selected image sources, helping you discover unexpected combinations for drawing and design sessions.
 
-[Download the latest Windows release](../../releases/latest)
+[Download the latest Windows release](https://github.com/javierusvg/ImageRandomizerFA/releases/tag/v0.7.0)
 
 ![Image Randomizer FA main window](assets/screenshots/main-window.png)
 
